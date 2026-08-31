@@ -10,6 +10,7 @@ an artificial trend introduced by bias correction.
 Input : data/imd/ (IMD gridded rainfall CSV)
         outputs/top7_bias_corrected/ (bias-corrected CSVs from Script 3)
 Output: outputs/trend_consistency_results.xlsx
+        (includes the observed reference trend as a separate row)
 """
 
 import pandas as pd
@@ -58,6 +59,16 @@ print("Sen slope:", round(slope_obs, 3), "mm/year")
 # MODEL TREND TEST
 # ==========================================
 results = []
+
+# Save observed trend as the first row for reference
+results.append({
+    "model": "IMD_Observed",
+    "tau_model": tau_obs,
+    "p_model": p_obs,
+    "Sen_slope_model": slope_obs,
+    "Trend_flag": "Reference"
+})
+
 for file in corrected_folder.glob("*_BiasCorrected.csv"):
     model_name = file.stem.replace("_BiasCorrected", "")
     df = pd.read_csv(file)
