@@ -1,11 +1,11 @@
 """
 GPD threshold sensitivity analysis for extreme value modelling.
 
-Fits the Generalized Pareto Distribution shape parameter across a range
-of percentile thresholds (P90-P98) for observed (IMD) and modelled
-(GCM) rainfall, using three representative models. Supports the
-selection of the P95 threshold used throughout the bias correction
-pipeline (see Section 6.1 / Figures 4a, 4b).
+Fits the Generalized Pareto Distribution shape and scale parameters
+across a range of percentile thresholds (P90-P98) for observed (IMD)
+and modelled (GCM) rainfall, using three representative models.
+Supports the selection of the P95 threshold used throughout the bias
+correction pipeline, and Figures 4a (shape) and 4b (scale).
 
 Input : data/imd/ (IMD gridded rainfall CSV)
         data/gcm_csv/ (raw GCM CSVs from Script 1)
@@ -75,15 +75,20 @@ for model_file in models:
             "Obs_excess_n": len(obs_excess),
             "GCM_excess_n": len(gcm_excess),
             "Obs_shape": np.nan,
-            "GCM_shape": np.nan
+            "GCM_shape": np.nan,
+            "Obs_scale": np.nan,
+            "GCM_scale": np.nan
         }
 
         if len(obs_excess) > 30:
-            shape_o, _, _ = genpareto.fit(obs_excess, floc=0)
+            shape_o, _, scale_o = genpareto.fit(obs_excess, floc=0)
             row["Obs_shape"] = shape_o
+            row["Obs_scale"] = scale_o
+
         if len(gcm_excess) > 30:
-            shape_g, _, _ = genpareto.fit(gcm_excess, floc=0)
+            shape_g, _, scale_g = genpareto.fit(gcm_excess, floc=0)
             row["GCM_shape"] = shape_g
+            row["GCM_scale"] = scale_g
 
         all_results.append(row)
 
