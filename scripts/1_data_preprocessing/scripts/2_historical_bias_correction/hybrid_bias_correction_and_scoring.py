@@ -183,3 +183,92 @@ for file in gcm_folder.glob("*.csv"):
     gcm_train = raw[train_mask]
 
     corrected = hybrid_bias_correction(obs_train, gcm_train, raw)
+
+    obs_val = obs[val_mask]
+    raw_val = raw[val_mask]
+    cor_val = corrected[val_mask]
+    dates_val = dates[val_mask]
+
+    obs_m = compute_metrics(obs_val, dates_val)
+    raw_m = compute_metrics(raw_val, dates_val)
+    cor_m = compute_metrics(cor_val, dates_val)
+
+    if not np.isfinite(np.sum(cor_m)):
+        continue
+
+    # Individual biases
+    bias_vals = np.abs(np.array(cor_m[:5]) - np.array(obs_m[:5]))
+    extreme_bias = np.mean(bias_vals)
+
+    raw_bias = np.mean(np.abs(np.array(raw_m[:5]) - np.array(obs_m[:5])))
+    improvement = (raw_bias - extreme_bias) / raw_bias if raw_bias != 0 else 0
+    improvement = np.clip(improvement, 0, 1)
+
+    results.append({
+        "model": file.stem,
+
+        "OBS_RX1": obs_m[0], "OBS_RX3": obs_m[1], "OBS_RX5": obs_m[2],
+        "OBS_P99": obs_m[3], "OBS_RL10": obs_m[4],
+
+        "RAW_RX1": raw_m[0], "RAW_RX3": raw_m[1], "RAW_RX5": raw_m[2],
+        "RAW_P99": raw_m[3], "RAW_RL10": raw_m[4],
+
+        "COR_RX1": cor_m[0], "COR_RX3": cor_m[1], "COR_RX5": cor_m[2],
+        "COR_P99": cor_m[3], "COR_RL10": cor_m[4],
+
+        "Bias_RX1": bias_vals[0], "Bias_RX3": bias_vals[1], "Bias_RX5": bias_vals[2],
+        "Bias_P99": bias_vals[3], "Bias_RL10": bias_vals[4],
+
+        "Extreme_bias": extreme_bias,
+        "AC1_bias": abs(cor_m[5] - obs_m[5]),
+        "CWD_bias": abs(cor_m[6] - obs_m[6]),
+        "CDD_bias": abs(cor_m[7] - obs_m[7]),
+        "Improvement_ratio": improvement
+    })
+
+
+df = pd.DataFrame(results).set_index("model")
+
+# =====================================================
+# NORMALIZATION
+# =====================================================
+bias_cols = ["Extreme_bias", "AC1_bias", "CWD_bias", "CDD_bias"]
+
+df_norm = df.copy()
+for col in bias_cols:
+    df_norm[col] = df[col] / df[col].max()
+
+df_norm["Improvement_ratio"] = df["Improvement_ratio"]
+
+# =====================================================
+# SCORING
+# =====================================================
+df["Score_equal"] = 1 - (
+    df_norm["Extreme_bias"] +
+    df_norm["AC1_bias"] +
+    df_norm["CWD_bias"] +
+    df_norm["CDD_bias"] +
+    (1 - df_norm["Improvement_ratio"])
+) / 5
+
+df["Score_extreme"] = 1 - (
+    0.6 * df_norm["Extreme_bias"] +
+    0.15 * df_norm["AC1_bias"] +
+    0.10 * df_norm["CWD_bias"] +
+    0.10 * df_norm["CDD_bias"] +
+    0.05 * (1 - df_norm["Improvement_ratio"])
+)
+
+df["Rank_equal"] = df["Score_equal"].rank(ascending=False)
+df["Rank_extreme"] = df["Score_extreme"].rank(ascending=False)
+
+rho, pval = spearmanr(df["Rank_equal"], df["Rank_extreme"])
+
+print("\nSpearman rho:", round(rho, 3))
+print("p-value:", round(pval, 5))
+
+df_sorted = df.sort_values("Score_extreme", ascending=False)
+Path("outputs").mkdir(exist_ok=True)
+df_sorted.to_excel(output_file)
+
+print("\nFull transparent results saved to:", output_file)
