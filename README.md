@@ -1,10 +1,10 @@
 # CMIP6 Extreme Rainfall Bias Correction — Kovalam Basin
 
-Code accompanying the manuscript: *Projection of Extreme Rainfall Characteristics over the Kovalam Basin (Chennai, India) Using a Hybrid Bias Correction Framework for CMIP6 Models*.
+Code and output data accompanying the manuscript: *Projection of Extreme Rainfall Characteristics over the Kovalam Basin (Chennai, India) Using a Hybrid Bias Correction Framework for CMIP6 Models*.
 
 ## Overview
 
-This repository contains the analysis and plotting scripts used to:
+This repository contains the analysis and plotting scripts, and key output data tables, used to:
 - Bias-correct historical and future CMIP6 precipitation using a hybrid Empirical Quantile Mapping (EQM) + Generalized Pareto Distribution (GPD) / Quantile Delta Mapping (QDM) framework
 - Screen and rank CMIP6 GCMs by extreme rainfall performance
 - Assess model reliability using GEV-based return level analysis
@@ -12,7 +12,7 @@ This repository contains the analysis and plotting scripts used to:
 
 ## Data sources
 
-Raw data are not included in this repository due to licensing and file size. They are publicly available from:
+Raw input data are not included in this repository due to licensing and file size. They are publicly available from:
 - **IMD gridded rainfall (0.25° x 0.25°):** [IMD Pune data portal](https://imdpune.gov.in/cmpg/Griddata/Rainfall_25_NetCDF.html)
 - **CMIP6 GCM output:** [Earth System Grid Federation (ESGF)](https://esgf-node.llnl.gov/search/cmip6/)
 
@@ -20,30 +20,29 @@ Place downloaded files under `data/imd/` and `data/raw_gcm_netcdf/` respectively
 
 ## Repository structure
 
-# CMIP6 Extreme Rainfall Bias Correction — Kovalam Basin
+\`\`\`
 
-Code accompanying the manuscript: *Projection of Extreme Rainfall Characteristics over the Kovalam Basin (Chennai, India) Using a Hybrid Bias Correction Framework for CMIP6 Models*.
+scripts/
+├── 1_data_preprocessing/ Convert raw CMIP6 NetCDF to CSV (unit conversion, grid extraction)
+├── 2_historical_bias_correction/ Hybrid EQM+GPD bias correction, model scoring, top-7 export
+├── 3_model_screening_diagnostics/ Trend consistency, threshold sensitivity, variance/distribution checks
+├── 4_future_bias_correction/ Future bias correction (QDM+GPD, signal-preserving)
+├── 5_extreme_value_analysis/ GEV return levels, model stability screening, climate signal
+│ preservation, ensemble summaries, future index changes
+└── 6_plotting/ Scripts for Figures 3-15b
 
-## Overview
+outputs/
+├── general/ Model selection, trend consistency, threshold sensitivity,
+│ variance/distribution diagnostics
+├── ssp245/ Model stability screening, return levels, climate signal
+│ preservation, ensemble summaries, future index changes (SSP2-4.5)
+└── ssp585/ Same set of outputs for SSP5-8.5
 
-This repository contains the analysis and plotting scripts used to:
-- Bias-correct historical and future CMIP6 precipitation using a hybrid Empirical Quantile Mapping (EQM) + Generalized Pareto Distribution (GPD) / Quantile Delta Mapping (QDM) framework
-- Screen and rank CMIP6 GCMs by extreme rainfall performance
-- Assess model reliability using GEV-based return level analysis
-- Quantify projected changes in extreme rainfall indices under SSP2-4.5 and SSP5-8.5 scenarios
-
-## Data sources
-
-Raw data are not included in this repository due to licensing and file size. They are publicly available from:
-- **IMD gridded rainfall (0.25° x 0.25°):** [IMD Pune data portal](https://imdpune.gov.in/cmpg/Griddata/Rainfall_25_NetCDF.html)
-- **CMIP6 GCM output:** [Earth System Grid Federation (ESGF)](https://esgf-node.llnl.gov/search/cmip6/)
-
-Place downloaded files under `data/imd/` and `data/raw_gcm_netcdf/` respectively before running the scripts.
-
-## Repository structure
-
+\`\`\`
 
 Scripts are numbered in the order they should be run within each folder. Several scripts in `4_future_bias_correction` and `5_extreme_value_analysis` are run once per emission scenario (SSP2-4.5, SSP5-8.5) by changing the `scenario` variable at the top of the script.
+
+Output tables in `outputs/` are provided for Grid 1, representative of the three IMD grid points used in the study (see Section 5.1 of the manuscript). These allow direct verification of reported values without re-running the full pipeline. The analysis was repeated identically for Grids 2 and 3 using the same scripts with different input files.
 
 ## Methodology summary
 
@@ -55,11 +54,13 @@ Scripts are numbered in the order they should be run within each folder. Several
 ## Requirements
 
 See `requirements.txt`. Install with:
-
+\`\`\`
+pip install -r requirements.txt
+\`\`\`
 
 ## Citation
 
-If you use this code, please cite the associated manuscript (details to be added upon publication).
+If you use this code or data, please cite the associated manuscript (details to be added upon publication).
 
 ## Contact
 
