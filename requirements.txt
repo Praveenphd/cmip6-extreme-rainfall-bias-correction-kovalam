@@ -1,0 +1,7 @@
+   pandas
+   numpy
+   scipy
+   matplotlib
+   xarray
+   netcdf4
+   openpyxl
