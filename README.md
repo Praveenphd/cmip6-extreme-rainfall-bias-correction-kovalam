@@ -56,7 +56,7 @@ pip install -r requirements.txt
 
 If you use this code or data, please cite the associated manuscript (details to be added upon publication), and this repository:
 
-Bheeman, P. (2026). *CMIP6 Extreme Rainfall Bias Correction — Kovalam Basin* [Code and data]. Zenodo. https://doi.org/10.5281/zenodo.22213807
+Bheeman, P. (2026). *CMIP6 Extreme Rainfall Bias Correction — Kovalam Basin* [Code and data]. Zenodo. https://doi.org/10.5281/zenodo.22233772
 
 Praveenbalaji Bheeman — pb4338@srmist.edu.in
 Department of Civil Engineering, SRM Institute of Science and Technology
